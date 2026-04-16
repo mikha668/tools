@@ -207,13 +207,13 @@
 
         <div class="time" aria-live="polite">
           <div class="big" id="timeText">10:00</div>
-          <div class="sub" id="subText">Redo</div>
+          <div class="sub" id="subText">Ready</div>
         </div>
       </div>
 
       <div class="controls">
         <label for="minutes">
-          <span>Tid (1–20 min)</span>
+          <span>Time (1–20 min)</span>
           <span class="mins"><span id="minutesLabel">10</span> min</span>
         </label>
 
@@ -227,7 +227,7 @@
         </div>
 
         <div class="shortcuts">
-          <span class="kbd">Space</span> start/paus • <span class="kbd">R</span> reset
+          <span class="kbd">Space</span> start/pause • <span class="kbd">R</span> reset
         </div>
       </div>
     </div>
@@ -322,16 +322,16 @@
     ring.classList.toggle('danger', danger);
 
     if (finished){
-      subText.textContent = "Klart!";
+      subText.textContent = "Done!";
     } else if (!running && remainingSeconds === totalSeconds){
-      subText.textContent = "Redo";
+      subText.textContent = "Ready";
     } else if (running){
-      subText.textContent = remainingSeconds <= 60 ? "Sista minuten!" : "Räknar ner…";
+      subText.textContent = remainingSeconds <= 60 ? "Last minute!" : "Counting down…";
     } else {
-      subText.textContent = "Pausad";
+      subText.textContent = "Pause";
     }
 
-    startPauseBtn.textContent = running ? "Paus" : (remainingSeconds === 0 ? "Start om" : "Start");
+    startPauseBtn.textContent = running ? "Pause" : (remainingSeconds === 0 ? "Start om" : "Start");
     resetBtn.disabled = running && remainingSeconds !== totalSeconds;
   }
 
