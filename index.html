@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Workshop tools</title>
+
   <style>
     :root{
       --bg1:#0b1220; --bg2:#0f1b33;
@@ -36,11 +37,13 @@
     }
     h1{margin:0 0 10px; font-size:22px}
     p{margin:0 0 18px; color:var(--muted)}
+
     .grid{
       display:grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap:12px;
     }
+
     a.tool{
       display:block;
       padding:14px 14px;
@@ -50,14 +53,25 @@
       color:var(--text);
       text-decoration:none;
       transition: transform .06s ease, border-color .2s ease, background .2s ease;
+      position: relative;
     }
     a.tool:hover{
       transform: translateY(-1px);
       border-color: rgba(255,255,255,.22);
       background: rgba(255,255,255,.06);
     }
+
+    .row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+
     .title{font-weight:800; letter-spacing:.2px}
+
     .desc{color:var(--muted); font-size:13px; margin-top:6px}
+
     .badge{
       display:inline-block;
       margin-top:10px;
@@ -68,32 +82,155 @@
       border:1px solid rgba(255,255,255,.12);
       color: rgba(255,255,255,.88);
     }
+
+    .copyBtn{
+      width:34px;
+      height:34px;
+      display:grid;
+      place-items:center;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
+      cursor:pointer;
+      padding:0;
+      transition: transform .06s ease, background .2s ease, border-color .2s ease;
+      flex: 0 0 auto;
+    }
+    .copyBtn:hover{
+      transform: translateY(-1px);
+      background: rgba(255,255,255,.08);
+      border-color: rgba(255,255,255,.22);
+    }
+    .copyBtn:active{
+      transform: translateY(0px);
+    }
+    .copyBtn svg{
+      width:18px;
+      height:18px;
+      fill: rgba(255,255,255,.85);
+    }
+
+    .toast{
+      position: fixed;
+      left: 50%;
+      bottom: 22px;
+      transform: translateX(-50%);
+      background: rgba(20, 24, 40, .92);
+      border: 1px solid rgba(255,255,255,.14);
+      color: rgba(255,255,255,.9);
+      padding: 10px 14px;
+      border-radius: 12px;
+      box-shadow: 0 18px 50px rgba(0,0,0,.45);
+      font-size: 13px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .18s ease, transform .18s ease;
+      z-index: 9999;
+    }
+    .toast.show{
+      opacity: 1;
+      transform: translateX(-50%) translateY(-4px);
+    }
   </style>
 </head>
+
 <body>
   <div class="card">
     <h1>Workshop tools</h1>
-    <p>Välj verktyg:</p>
+    <p>Pick tool or copy url:</p>
 
     <div class="grid">
-      <a class="tool" href="timer.html">
-        <div class="title">Timer</div>
+      <a class="tool" href="timer.html" data-page="timer.html">
+        <div class="row">
+          <div class="title">Timer</div>
+          <button class="copyBtn" type="button" aria-label="Copy URL" title="Copy URL">
+            <!-- copy icon -->
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M16 1H6a2 2 0 0 0-2 2v12h2V3h10V1zm3 4H10a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm0 16h-9V7h9v14z"/>
+            </svg>
+          </button>
+        </div>
         <div class="desc">1–20 minutes, count down</div>
         <span class="badge">workshop</span>
       </a>
 
-      <a class="tool" href="group.html">
-        <div class="title">Group</div>
+      <a class="tool" href="group.html" data-page="group.html">
+        <div class="row">
+          <div class="title">Group</div>
+          <button class="copyBtn" type="button" aria-label="Copy URL" title="Copy URL">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M16 1H6a2 2 0 0 0-2 2v12h2V3h10V1zm3 4H10a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm0 16h-9V7h9v14z"/>
+            </svg>
+          </button>
+        </div>
         <div class="desc">Create groups automaticly</div>
         <span class="badge">Group tool</span>
       </a>
-      
-      <a class="tool" href="draw.html">
-        <div class="title">Lycky draw</div>
+
+      <a class="tool" href="draw.html" data-page="draw.html">
+        <div class="row">
+          <div class="title">Lucky draw</div>
+          <button class="copyBtn" type="button" aria-label="Copy URL" title="Copy URL">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M16 1H6a2 2 0 0 0-2 2v12h2V3h10V1zm3 4H10a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm0 16h-9V7h9v14z"/>
+            </svg>
+          </button>
+        </div>
         <div class="desc">Draw a winner or pick a person at random</div>
         <span class="badge">Group tool</span>
       </a>
     </div>
   </div>
+
+  <!-- toast -->
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    (() => {
+      const BASE = "https://mikha668.github.io/tools/";
+      const toast = document.getElementById("toast");
+      let toastTimer = null;
+
+      function showToast(msg){
+        toast.textContent = msg;
+        toast.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove("show"), 1200);
+      }
+
+      async function copyText(text){
+        try{
+          await navigator.clipboard.writeText(text);
+          return true;
+        }catch(e){
+          // fallback if clipboard permission is blocked
+          const ta = document.createElement("textarea");
+          ta.value = text;
+          ta.style.position = "fixed";
+          ta.style.left = "-9999px";
+          document.body.appendChild(ta);
+          ta.select();
+          const ok = document.execCommand("copy");
+          document.body.removeChild(ta);
+          return ok;
+        }
+      }
+
+      document.querySelectorAll(".tool").forEach(card => {
+        const page = card.getAttribute("data-page") || card.getAttribute("href");
+        const btn = card.querySelector(".copyBtn");
+        if(!btn) return;
+
+        btn.addEventListener("click", async (e) => {
+          e.preventDefault();   // don't navigate
+          e.stopPropagation();  // don't trigger link click
+
+          const url = BASE + page;
+          const ok = await copyText(url);
+          showToast(ok ? "Copied URL ✅" : "Could not copy ❌");
+        });
+      });
+    })();
+  </script>
 </body>
 </html>
