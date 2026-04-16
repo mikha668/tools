@@ -1,1 +1,789 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Group generator</title>
+  <style>
+    :root{
+      --bg1:#0b1220;
+      --bg2:#0f1b33;
+      --card: rgba(255,255,255,.06);
+      --stroke: rgba(255,255,255,.12);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.65);
+      --accent: #7c5cff;
+      --accent2:#2bd4ff;
+      --danger:#ff4d6d;
+      --shadow: 0 20px 60px rgba(0,0,0,.45);
+    }
 
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      min-height:100vh;
+      display:grid;
+      place-items:center;
+      color:var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      background:
+        radial-gradient(900px 450px at 20% 20%, rgba(124,92,255,.35), transparent 60%),
+        radial-gradient(800px 380px at 80% 35%, rgba(43,212,255,.25), transparent 55%),
+        linear-gradient(180deg, var(--bg1), var(--bg2));
+      padding:24px;
+    }
+
+    .wrap{
+      width:min(1100px, 100%);
+      display:grid;
+      gap:14px;
+    }
+
+    header{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:12px;
+    }
+
+    h1{
+      margin:0;
+      font-size: clamp(18px, 2.5vw, 24px);
+      letter-spacing:.2px;
+    }
+    .sub{
+      margin:0;
+      color:var(--muted);
+      font-size: 13px;
+      line-height:1.35;
+      text-align:right;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap:14px;
+    }
+
+    @media (max-width: 920px){
+      .grid{ grid-template-columns: 1fr; }
+      .sub{ text-align:left; }
+    }
+
+    .card{
+      background: var(--card);
+      border:1px solid var(--stroke);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+      backdrop-filter: blur(10px);
+    }
+
+    .section-title{
+      font-weight:800;
+      letter-spacing:.2px;
+      margin: 0 0 10px;
+    }
+
+    textarea{
+      width:100%;
+      min-height: 170px;
+      resize: vertical;
+      border-radius: 16px;
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.04);
+      color: var(--text);
+      padding: 12px 12px;
+      outline: none;
+      line-height: 1.35;
+    }
+    textarea::placeholder{ color: rgba(255,255,255,.45); }
+
+    .row{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      margin-top: 10px;
+    }
+
+    input[type="text"]{
+      flex: 1 1 240px;
+      border-radius: 14px;
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.04);
+      color: var(--text);
+      padding: 10px 12px;
+      outline:none;
+    }
+
+    .pill{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      width:100%;
+      padding: 10px 12px;
+      border:1px solid var(--stroke);
+      border-radius: 16px;
+      background: rgba(255,255,255,.04);
+    }
+
+    label{
+      color: var(--muted);
+      font-size: 13px;
+      user-select:none;
+    }
+
+    .mode{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top: 10px;
+    }
+
+    .radio{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding: 8px 10px;
+      border:1px solid var(--stroke);
+      border-radius: 14px;
+      background: rgba(255,255,255,.04);
+      cursor:pointer;
+      user-select:none;
+    }
+    .radio input{ margin:0; }
+
+    input[type="range"]{
+      width:100%;
+      accent-color: var(--accent);
+    }
+
+    .value{
+      min-width: 56px;
+      text-align:right;
+      font-variant-numeric: tabular-nums;
+      font-weight: 800;
+      color: rgba(255,255,255,.86);
+    }
+
+    button{
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.05);
+      color: var(--text);
+      padding: 11px 14px;
+      border-radius: 14px;
+      cursor:pointer;
+      font-weight: 800;
+      letter-spacing:.2px;
+      transition: transform .05s ease, background .2s ease, border-color .2s ease;
+      user-select:none;
+    }
+    button:active{ transform: translateY(1px); }
+    button.primary{
+      background: linear-gradient(135deg, rgba(124,92,255,.95), rgba(43,212,255,.60));
+      border-color: rgba(255,255,255,.10);
+    }
+    button.danger{
+      background: rgba(255,77,109,.12);
+      border-color: rgba(255,77,109,.35);
+    }
+    button:disabled{
+      opacity:.55;
+      cursor:not-allowed;
+    }
+
+    .chips{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top: 10px;
+    }
+    .chip{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.04);
+      font-size: 13px;
+      max-width: 100%;
+    }
+    .chip .name{
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      max-width: 260px;
+    }
+    .chip button{
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-weight: 900;
+      min-width: unset;
+    }
+
+    .meta{
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12.5px;
+    }
+
+    .groups{
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 12px;
+      margin-top: 10px;
+    }
+    .group{
+      border-radius: 18px;
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.04);
+      padding: 12px;
+    }
+    .group h3{
+      margin:0 0 8px;
+      font-size: 14px;
+      letter-spacing:.2px;
+    }
+    .person{
+      padding: 6px 10px;
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.03);
+      margin: 6px 0;
+      font-size: 13.5px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .toast{
+      position: fixed;
+      left: 50%;
+      bottom: 22px;
+      transform: translateX(-50%);
+      padding: 10px 12px;
+      border-radius: 999px;
+      border:1px solid rgba(255,255,255,.18);
+      background: rgba(10,15,28,.75);
+      color: rgba(255,255,255,.90);
+      box-shadow: 0 12px 40px rgba(0,0,0,.45);
+      backdrop-filter: blur(10px);
+      font-size: 13px;
+      opacity:0;
+      pointer-events:none;
+      transition: opacity .2s ease;
+    }
+    .toast.show{ opacity:1; }
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New";
+      font-size: 12px;
+      border:1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.06);
+      padding: 2px 6px;
+      border-radius: 8px;
+      color: rgba(255,255,255,.78);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Group generator</h1>
+      </div>
+
+    </header>
+
+    <div class="grid">
+      <!-- Left: input & list -->
+      <section class="card">
+        <div class="section-title">Participants</div>
+
+        <textarea id="paste"
+          placeholder="Paste or write names here (from outlook):
+anna.andersson@bolag.se; bertil_svensson@bolag.se
+or: Anna Andersson, Bertil Svensson"></textarea>
+
+        <div class="row">
+          <button class="primary" id="parseBtn">Add names from text</button>
+          <button class="danger" id="clearAllBtn" title="Töm listan">clear text area</button>
+        </div>
+
+        <div class="row">
+          <input id="manualName" type="text" placeholder="Enter a name and …" />
+          <button id="addManualBtn">Add name</button>
+        </div>
+
+        <div class="meta" id="countMeta">0 participants</div>
+        <div class="chips" id="chips"></div>
+      </section>
+
+      <!-- Right: grouping controls & output -->
+      <aside class="card">
+        <div class="section-title">Generate groups</div>
+
+        <div class="mode" role="radiogroup" aria-label="Välj hur grupper ska skapas">
+          <label class="radio">
+            <input type="radio" name="mode" value="size" checked />
+            Group size
+          </label>
+          <label class="radio">
+            <input type="radio" name="mode" value="count" />
+            Number of groups
+          </label>
+        </div>
+
+        <div class="pill" style="margin-top:10px;">
+          <div style="width:100%;">
+            <label id="rangeLabel" for="range">Group size(1–20)</label>
+            <div style="display:flex; gap:10px; align-items:center; margin-top:6px;">
+              <input id="range" type="range" min="1" max="10" value="4" />
+              <div class="value"><span id="rangeVal">4</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row" style="justify-content:center; margin-top:12px;">          
+          <button type="button" class="primary" id="generateBtn">Generate groups</button>
+          <button type="button" id="reshuffleBtn" disabled>Shuffle</button>
+          <button type="button" id="copyBtn" disabled>Copy</button>
+        </div>
+
+        <div class="meta" id="groupMeta">—</div>
+        <div class="groups" id="groups"></div>
+      </aside>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">Kopierat!</div>
+
+<script>
+(() => {
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      const isManualName = document.activeElement === manualName;
+      if (!isManualName) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    }
+  });
+  // ---------- Helpers ----------
+  const $ = (id) => document.getElementById(id);
+
+  function toast(msg){
+    const t = $("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    setTimeout(() => t.classList.remove("show"), 1200);
+  }
+
+  // Extract emails anywhere in text
+  const emailRegex = /[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/gi;
+
+  function titleCase(s){
+    return s.split(" ").filter(Boolean).map(w => {
+      if (!w) return w;
+      return w.charAt(0).toUpperCase() + w.slice(1);
+    }).join(" ");
+  }
+
+  function nameFromEmail(email){
+    const local = email.split("@")[0] || "";
+    // Convert separators to spaces and clean up
+    const cleaned = local
+      .replace(/[._-]+/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+    return titleCase(cleaned);
+  }
+
+  function normalizeName(s){
+    return s
+      .trim()
+      .replace(/\s+/g, " ");
+  }
+
+  function uniqueKey(s){
+    return s.toLowerCase().replace(/\s+/g, " ").trim();
+  }
+
+  // Fisher–Yates shuffle
+  function shuffle(arr){
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  // ---------- State ----------
+  const participants = new Map(); // key -> displayName
+  let lastGroups = null;          // store last generated grouping
+  let lastMode = "size";
+  let lastValue = 4;
+
+  // ---------- Elements ----------
+  const paste = $("paste");
+  const parseBtn = $("parseBtn");
+  const clearAllBtn = $("clearAllBtn");
+  const manualName = $("manualName");
+  const addManualBtn = $("addManualBtn");
+
+  const chips = $("chips");
+  const countMeta = $("countMeta");
+
+  const range = $("range");
+  const rangeVal = $("rangeVal");
+  const rangeLabel = $("rangeLabel");
+
+  const generateBtn = $("generateBtn");
+  const reshuffleBtn = $("reshuffleBtn");
+  const copyBtn = $("copyBtn");
+  const groupsEl = $("groups");
+  const groupMeta = $("groupMeta");
+
+  // ---------- UI Updates ----------
+  function renderParticipants(){
+    chips.innerHTML = "";
+
+    const items = Array.from(participants.values());
+    countMeta.textContent = `${items.length} deltagare`;
+
+    items.forEach(name => {
+      const key = uniqueKey(name);
+      const chip = document.createElement("div");
+      chip.className = "chip";
+
+      const span = document.createElement("div");
+      span.className = "name";
+      span.textContent = name;
+
+      const del = document.createElement("button");
+      del.className = "danger";
+      del.type = "button";
+      del.textContent = "×";
+      del.title = "Ta bort";
+      del.addEventListener("click", () => {
+        participants.delete(key);
+        renderParticipants();
+        clearGroups();
+      });
+
+      chip.appendChild(span);
+      chip.appendChild(del);
+      chips.appendChild(chip);
+    });
+  }
+
+  function clearGroups(){
+    lastGroups = null;
+    groupsEl.innerHTML = "";
+    groupMeta.textContent = "—";
+    reshuffleBtn.disabled = true;
+    copyBtn.disabled = true;
+  }
+
+  function setMode(mode){
+    lastMode = mode;
+
+    if (mode === "size"){
+      range.min = "1";
+      range.max = "10";
+      range.value = String(Math.min(10, Math.max(1, Number(range.value) || 4)));
+      rangeLabel.textContent = "Group size (1–10)";
+    } else {
+      // antal grupper: rimligt spann 1..10 (men vi clamp:as mot antal deltagare vid generering)
+      range.min = "1";
+      range.max = "10";
+      range.value = String(Math.min(10, Math.max(1, Number(range.value) || 3)));
+      rangeLabel.textContent = "No of groups (1–10)";
+    }
+
+    rangeVal.textContent = range.value;
+    lastValue = Number(range.value);
+  }
+
+  // ---------- Parsing ----------
+  function addNames(names){
+    let added = 0;
+
+    names.forEach(n => {
+      const nn = normalizeName(n);
+      if (!nn) return;
+      const key = uniqueKey(nn);
+      if (!participants.has(key)){
+        participants.set(key, nn);
+        added++;
+      }
+    });
+
+    if (added > 0){
+      renderParticipants();
+    }
+    clearGroups();
+    return added;
+  }
+
+  /* function parseInputText(text){
+    const foundEmails = (text.match(emailRegex) || []).map(e => e.toLowerCase());
+
+    // 1) Names from emails (local part)
+    const namesFromEmails = foundEmails.map(nameFromEmail).filter(Boolean);
+
+    // 2) Also accept raw lines that are not emails (manual paste lists)
+    // Split by newline and common delimiters, remove emails, and keep non-empty tokens
+    const rawTokens = text
+      .replace(emailRegex, " ")                 // remove emails from text
+      .split(/[\n,;]+/g)                        // split on newline/comma/semicolon
+      .map(t => t.trim())
+      .filter(Boolean);
+
+    // Keep tokens that look like names (at least 2 chars)
+    const namesFromLines = rawTokens.filter(t => t.length >= 2);
+
+    // Combine
+    return [...namesFromEmails, ...namesFromLines];
+  } */
+
+function parseInputText(text){
+  // 0) Decode vanliga HTML-entiteter (om Outlook/klipp ger &lt; &gt; osv)
+  const decoded = (text || "")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, "\"")
+    .replace(/&#34;/g, "\"")
+    .replace(/&amp;/g, "&");
+
+  let working = decoded;
+
+  // 1) Plocka ut Outlook-format: "Anna Sandberg" <anna.sandberg@midagon.com>
+  //    samt: Anna Sandberg <anna.sandberg@midagon.com>
+  const outlookNames = [];
+  const matchedEmails = new Set();
+
+  const reQuoted = /"([^"]+)"\s*<\s*([a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,})\s*>/gi;
+  const reUnquoted = /(^|[\n,;])\s*([^<"\n;,][^<\n;,{]{1,80}?)\s*<\s*([a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,})\s*>/gi;
+
+  // Match "Name" <email>
+  working = working.replace(reQuoted, (m, name, email) => {
+    const n = normalizeName(name);
+    if (n) outlookNames.push(titleCase(n));
+    matchedEmails.add(String(email).toLowerCase());
+    return " "; // ta bort från texten så vi inte dubbelparsar
+  });
+
+  // Match Name <email> (utan citattecken)
+  working = working.replace(reUnquoted, (m, sep, name, email) => {
+    const n = normalizeName(name);
+    if (n) outlookNames.push(titleCase(n));
+    matchedEmails.add(String(email).toLowerCase());
+    return sep ? sep + " " : " ";
+  });
+
+  // 2) Plocka ut emails som finns kvar i texten (men INTE de som redan hade namn)
+  const foundEmails = (working.match(emailRegex) || [])
+    .map(e => e.toLowerCase())
+    .filter(e => !matchedEmails.has(e));
+
+  const namesFromEmails = foundEmails
+    .map(nameFromEmail)
+    .filter(Boolean);
+
+  // 3) Ta även med "rena namn" från rader/listor (efter att vi tagit bort emails)
+  const rawTokens = working
+    .replace(emailRegex, " ")         // ta bort kvarvarande emails
+    .split(/[\n,;]+/g)                // splitta på newline/komma/semicolon
+    .map(t => t.trim())
+    .filter(Boolean)
+    .filter(t => t.length >= 2);
+
+  // 4) Kombinera: Outlook-namn först (prioriterat) + mail->namn + rena tokens
+  return [...outlookNames, ...namesFromEmails, ...rawTokens];
+}
+
+
+  // ---------- Grouping ----------
+  function generateGroups(){
+    const list = Array.from(participants.values());
+    if (list.length === 0){
+      toast("Add participants first");
+      return;
+    }
+
+    const mode = document.querySelector('input[name="mode"]:checked')?.value || "size";
+    const val = Number(range.value) || 1;
+    lastMode = mode;
+    lastValue = val;
+
+    const shuffled = shuffle(list);
+
+    let numberOfGroups = 1;
+    let groupSize = 1;
+
+    if (mode === "size"){
+      groupSize = Math.max(1, Math.min(10, val));
+      numberOfGroups = Math.ceil(shuffled.length / groupSize);
+    } else {
+      numberOfGroups = Math.max(1, Math.min(20, val));
+      numberOfGroups = Math.min(numberOfGroups, shuffled.length); // can't have more groups than people
+      groupSize = Math.ceil(shuffled.length / numberOfGroups);
+    }
+
+    const groups = Array.from({ length: numberOfGroups }, () => []);
+
+    // Round-robin distribution gives even-ish groups
+    shuffled.forEach((person, idx) => {
+      groups[idx % numberOfGroups].push(person);
+    });
+
+    lastGroups = groups;
+
+    renderGroups(groups, mode, val, groupSize, numberOfGroups, list.length);
+    reshuffleBtn.disabled = false;
+    copyBtn.disabled = false;
+  }
+
+  function renderGroups(groups, mode, val, groupSize, numberOfGroups, totalPeople){
+    groupsEl.innerHTML = "";
+
+    const sizes = groups.map(g => g.length);
+    const minS = Math.min(...sizes);
+    const maxS = Math.max(...sizes);
+
+    if (mode === "size"){
+      groupMeta.textContent =
+        `${totalPeople} participants → ${numberOfGroups} groups (group size ≈ ${groupSize}). Range: ${minS}–${maxS}`;
+    } else {
+      groupMeta.textContent =
+        `${totalPeople} participants → ${numberOfGroups} groups (≈ ${groupSize}/group). Range: ${minS}–${maxS}`;
+    }
+
+    groups.forEach((g, i) => {
+      const card = document.createElement("div");
+      card.className = "group";
+
+      const h = document.createElement("h3");
+      h.textContent = `Grupp ${i+1} (${g.length})`;
+      card.appendChild(h);
+
+      g.forEach(p => {
+        const div = document.createElement("div");
+        div.className = "person";
+        div.textContent = p;
+        card.appendChild(div);
+      });
+
+      groupsEl.appendChild(card);
+    });
+  }
+
+  function reshuffle(){
+    if (!participants.size){
+      toast("No participants.");
+      return;
+    }
+    generateGroups();
+  }
+
+  function copyGroups(){
+    if (!lastGroups){
+      toast("Generate groups first.");
+      return;
+    }
+
+    const lines = [];
+    lastGroups.forEach((g, i) => {
+      lines.push(`Group ${i+1}:`);
+      g.forEach(p => lines.push(`- ${p}`));
+      lines.push("");
+    });
+
+    const txt = lines.join("\n").trim();
+
+    navigator.clipboard?.writeText(txt)
+      .then(() => toast("Copied to clipboard!"))
+      .catch(() => {
+        // fallback
+        const ta = document.createElement("textarea");
+        ta.value = txt;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+        toast("Copied!");
+      });
+  }
+
+  // ---------- Events ----------
+  parseBtn.addEventListener("click", () => {
+    const text = paste.value || "";
+    const names = parseInputText(text);
+    const added = addNames(names);
+    toast(added > 0 ? `Added ${added} participants.` : "No new participants to add.");
+  });
+
+  /*
+  clearAllBtn.addEventListener("click", () => {
+    participants.clear();
+    renderParticipants();
+    clearGroups();
+    paste.value = "";
+    manualName.value = "";
+    toast("Rensat.");
+  }); */
+  
+  clearAllBtn.addEventListener("click", () => {
+    paste.value = "";
+    manualName.value = "";
+    toast("Text area cleared.");
+  });
+
+  addManualBtn.addEventListener("click", () => {
+    const n = manualName.value;
+    const added = addNames([n]);
+    manualName.value = "";
+    toast(added ? "Added." : "No new participants to add.");
+  });
+
+  manualName.addEventListener("keydown", (e) => {
+    if (e.key === "Enter"){
+      e.preventDefault();
+      addManualBtn.click();
+    }
+  });
+
+  document.querySelectorAll('input[name="mode"]').forEach(r => {
+    r.addEventListener("change", () => {
+      setMode(r.value);
+      clearGroups();
+    });
+  });
+
+  range.addEventListener("input", () => {
+    rangeVal.textContent = range.value;
+    clearGroups();
+  });
+
+  generateBtn.addEventListener("click", generateGroups);
+  reshuffleBtn.addEventListener("click", reshuffle);
+  copyBtn.addEventListener("click", copyGroups);
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key.toLowerCase() === "g"){
+      // Quick generate
+      generateGroups();
+    }
+  });
+
+  // Init
+  setMode("size");
+  renderParticipants();
+})();
+</script>
+
+</body>
+</html>
